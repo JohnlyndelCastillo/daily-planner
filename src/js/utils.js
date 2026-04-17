@@ -2,7 +2,8 @@ export function fmt(time) {
   const d = new Date(time);
   return d.toLocaleTimeString([], {
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
+    hour12: true,
   });
 }
 
