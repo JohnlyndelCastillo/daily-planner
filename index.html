@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>✨Task Monitoring</title>
+
+  <!-- Tailwind -->
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS -->
+
+  <link rel="stylesheet" href="./src/css/style.css">
+
+  <!-- Tailwind Config -->
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { nunito: ['Nunito', 'sans-serif'] },
+          boxShadow: {
+            soft: '0 2px 12px 0 rgba(0,0,0,0.07)',
+            card: '0 4px 24px 0 rgba(0,0,0,0.08)',
+          }
+        }
+      }
+    }
+  </script>
+
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-pink-50 via-fuchsia-50 to-violet-100 p-4 sm:p-8 font-nunito">
+
+  <div class="max-w-lg mx-auto">
+
+
+    <!-- Header -->
+    <div class="text-center mb-6">
+      <div class="text-5xl mb-2 select-none">🌸</div>
+      <h1 class="text-2xl font-extrabold text-violet-700">Daily Task Monitoring</h1>
+      <p id="dateLabel" class="text-xs font-bold text-violet-400 mt-1 tracking-wide uppercase"></p>
+    </div>
+
+    <!-- Input Card -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-card border border-pink-100 p-4 mb-4">
+      <textarea id="taskInput" rows="1" placeholder="What's on your plate today? 🍱"
+        class="w-full text-sm font-semibold text-gray-700 placeholder-pink-300 bg-pink-50 rounded-2xl px-4 py-3 border-0 focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all min-h-[44px]"></textarea>
+
+      <div class="flex items-center justify-between mt-3 px-1">
+        <span class="text-xs text-violet-300 font-bold select-none">
+          ↵ Add · Shift+↵ New line
+        </span>
+
+        <button id="addBtn"
+          class="btn-pill bg-gradient-to-r from-pink-400 to-violet-500 text-white text-sm font-extrabold px-5 py-2 rounded-full shadow-soft hover:brightness-110">
+          + Add ✨
+        </button>
+      </div>
+    </div>
+
+    <!-- Task List -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-card border border-violet-100 overflow-hidden">
+
+      <div class="flex items-center justify-between px-5 py-3 border-b border-violet-50">
+        <div class="flex items-center gap-2">
+          <span class="text-lg select-none">📋</span>
+          <span class="font-extrabold text-violet-700 text-sm">Today's tasks</span>
+        </div>
+
+        <span id="taskCount" class="text-xs font-extrabold text-violet-400 bg-violet-50 px-3 py-1 rounded-full"></span>
+      </div>
+
+      <ul id="taskList" class="divide-y divide-violet-50"></ul>
+    </div>
+
+    <p class="text-center text-xs font-bold text-violet-300 mt-5 select-none">
+      Resets every day 🌙
+    </p>
+
+  </div>
+
+  <!-- JS (only once, at the bottom) -->
+
+  <script type="module" src="./src/js/main.js"></script>
+
+</body>
+
+</html>
