@@ -40,7 +40,7 @@ export function carryOverTask(task) {
     status: 'todo',       // reset to todo
     startTime: null,      // clear times
     endTime: null,
-    carriedOver: true,    // flag so you can style it differently
+    carriedOver: true,    // flag to indicate it's a carry-over task
     carriedFrom: task.sourceDate ?? task.carriedFrom,
 
   });

@@ -167,7 +167,7 @@ export function showCarryOverBanner(unfinished) {
 
   const title = document.createElement('p');
   title.className = 'text-sm font-extrabold text-amber-600';
-  title.textContent = `↩ ${unfinished.length} Unfinished Task${unfinished.length > 1 ? 's' : ''} from yesterday`;
+  title.textContent = `↩ ${unfinished.length} Unfinished Task${unfinished.length > 1 ? 's' : ''} from Yesterday`;
 
   const dismiss = document.createElement('button');
   dismiss.className = 'text-xs font-bold text-amber-400 hover:text-amber-600';
