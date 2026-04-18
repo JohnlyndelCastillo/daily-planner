@@ -1,6 +1,6 @@
 import { getTasks } from './storage.js';
-import { fmt, autoResize } from './utils.js';
-import { startTask, markDone, deleteTask, addTask, STATUS } from './tasks.js';
+import { fmt, autoResize, checkCarryOver } from './utils.js';
+import { startTask, markDone, deleteTask, addTask, STATUS, carryOverTask } from './tasks.js';
 
 export function initUI() {
   const input = document.getElementById('taskInput');
@@ -68,6 +68,20 @@ export function initUI() {
       const li = document.createElement('li');
       li.className = 'task-enter px-5 py-4';
 
+      // Carried over indicator
+      if (task.carriedOver) {
+        const tag = document.createElement('div');
+        tag.className = 'text-xs font-bold text-amber-400 mb-1 pl-7';
+
+        const [year, month, day] = task.carriedFrom.split('-');
+        const fromDate = new Date(year, month - 1, day).toLocaleDateString([], {
+          month: 'short', day: 'numeric', year: 'numeric'
+        });
+
+        tag.textContent = `Carried over from ${fromDate}`;
+        li.appendChild(tag);
+      }
+
       const top = document.createElement('div');
       top.className = 'flex items-start gap-2';
 
@@ -131,5 +145,75 @@ export function initUI() {
     });
   }
 
+  window.__renderTasks = render; // for debugging
+
+  checkCarryOver();
   render();
+}
+
+export function showCarryOverBanner(unfinished) {
+  // Don't show banner if it's already there
+  if (document.getElementById('carryOverBanner')) return;
+
+  const todayKey = new Date().toISOString().split('T')[0];
+  const seenKey = `carryover-seen-${todayKey}`;
+
+  const banner = document.createElement('div');
+  banner.id = 'carryOverBanner';
+  banner.className = 'bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 mb-4';
+
+  const top = document.createElement('div');
+  top.className = 'flex items-center justify-between mb-3';
+
+  const title = document.createElement('p');
+  title.className = 'text-sm font-extrabold text-amber-600';
+  title.textContent = `↩ ${unfinished.length} Unfinished Task${unfinished.length > 1 ? 's' : ''} from yesterday`;
+
+  const dismiss = document.createElement('button');
+  dismiss.className = 'text-xs font-bold text-amber-400 hover:text-amber-600';
+  dismiss.textContent = '✕ Dismiss';
+  dismiss.addEventListener('click', () => {
+    localStorage.setItem(seenKey, 'true'); // mark as seen so banner doesn't show again
+    banner.remove();
+  });
+
+  top.append(title, dismiss);
+
+  const taskList = document.createElement('ul');
+  taskList.className = 'space-y-1 mb-3';
+
+  unfinished.forEach(task => {
+    const li = document.createElement('li');
+    li.className = 'text-xs font-semibold text-amber-700 truncate';
+    li.textContent = `• ${task.text}`;
+    taskList.appendChild(li);
+  });
+
+  const actions = document.createElement('div');
+  actions.className = 'flex gap-2';
+
+  const carryAllBtn = document.createElement('button');
+  carryAllBtn.className = 'btn-pill text-xs font-extrabold px-3 py-1.5 rounded-full bg-amber-400 text-white hover:bg-amber-500';
+  carryAllBtn.textContent = '↩ Carry All Over';
+  carryAllBtn.addEventListener('click', () => {
+    unfinished.forEach(task => carryOverTask(task));
+    localStorage.setItem(seenKey, 'true'); // mark as seen so banner doesn't show again
+    banner.remove();
+    window.__renderTasks?.();
+  });
+
+  const dismissAllBtn = document.createElement('button');
+  dismissAllBtn.className = 'btn-pill text-xs font-extrabold px-3 py-1.5 rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200';
+  dismissAllBtn.textContent = 'Dismiss';
+  dismissAllBtn.addEventListener('click', () => {
+    localStorage.setItem(seenKey, 'true'); // mark as seen so banner doesn't show again
+    banner.remove();
+  });
+
+  actions.append(carryAllBtn, dismissAllBtn);
+  banner.append(top, taskList, actions);
+
+  // Insert banner above the task list card
+  const taskCard = document.querySelector('#taskList').closest('.rounded-3xl');
+  taskCard.parentElement.insertBefore(banner, taskCard);
 }

@@ -32,3 +32,17 @@ export function deleteTask(i) {
   tasks.splice(i, 1);
   saveTasks(tasks);
 }
+
+export function carryOverTask(task) {
+  const today = getTasks();
+  today.push({
+    ...task,
+    status: 'todo',       // reset to todo
+    startTime: null,      // clear times
+    endTime: null,
+    carriedOver: true,    // flag so you can style it differently
+    carriedFrom: task.sourceDate ?? task.carriedFrom,
+
+  });
+  saveTasks(today);
+}
