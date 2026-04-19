@@ -1,4 +1,4 @@
-# 🌸 Daily Task Monitor
+# 🌸 Daily Task Monitoring
 
 A cute, lightweight daily task tracker built for QA productivity. No frameworks, no build step — just a single HTML file you can deploy to Vercel in seconds.
 
