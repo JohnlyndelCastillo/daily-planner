@@ -1,8 +1,9 @@
-const todayKey = new Date().toISOString().split('T')[0];
-
+function getTodayKey() {
+  return new Date().toISOString().split('T')[0];
+}
 export function getTasks() {
   try {
-    return JSON.parse(localStorage.getItem(todayKey)) || [];
+    return JSON.parse(localStorage.getItem(getTodayKey())) || [];
   } catch {
     return [];
   }
@@ -14,7 +15,7 @@ export function getTasksByDate(dateKey) {
 }
 
 export function saveTasks(tasks) {
-  localStorage.setItem(todayKey, JSON.stringify(tasks));
+  localStorage.setItem(getTodayKey(), JSON.stringify(tasks));
 }
 
 export function getAllDates() {
