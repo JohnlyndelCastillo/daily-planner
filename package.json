@@ -1,0 +1,25 @@
+{
+  "name": "daily-planner",
+  "version": "1.0.0",
+  "description": "A cute, lightweight daily task tracker built for QA productivity. No frameworks, no build step — just a single HTML file you can deploy to Vercel in seconds.",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JohnlyndelCastillo/daily-planner.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JohnlyndelCastillo/daily-planner/issues"
+  },
+  "homepage": "https://github.com/JohnlyndelCastillo/daily-planner#readme",
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.4",
+    "jsdom": "^29.0.2",
+    "vitest": "^4.1.4"
+  }
+}
