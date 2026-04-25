@@ -46,3 +46,10 @@ export function carryOverTask(task) {
   });
   saveTasks(today);
 }
+
+export function editTask(i, newText) {
+  const tasks = getTasks();
+  if (!newText.trim()) return;
+  tasks[i].text = newText.trim();
+  saveTasks(tasks);
+}

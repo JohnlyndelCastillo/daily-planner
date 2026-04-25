@@ -1,6 +1,6 @@
 import { getTasks } from './storage.js';
 import { fmt, autoResize, checkCarryOver } from './utils.js';
-import { startTask, markDone, deleteTask, addTask, STATUS, carryOverTask } from './tasks.js';
+import { startTask, markDone, deleteTask, addTask, STATUS, carryOverTask, editTask } from './tasks.js';
 
 export function initUI() {
   const input = document.getElementById('taskInput');
@@ -92,6 +92,51 @@ export function initUI() {
       const textEl = document.createElement('span');
       textEl.className = 'flex-1 min-w-0 text-sm font-semibold text-gray-700 whitespace-pre-wrap break-words';
       textEl.textContent = task.text;
+
+      if (task.status === 'todo' || task.status === 'doing') {
+        textEl.title = 'Double click to edit';
+        textEl.classList.add('cursor-pointer');
+
+        textEl.addEventListener('dblclick', () => {
+          // Replace span with textarea
+          const editor = document.createElement('textarea');
+          editor.className = 'flex-1 min-w-0 text-sm font-semibold text-gray-700 bg-pink-50 rounded-xl px-2 py-1 border border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none';
+          editor.value = task.text;
+          autoResize(editor);
+          textEl.replaceWith(editor);
+          editor.focus();
+
+          // Wait for browser to paint before resizing
+          requestAnimationFrame(() => {
+            autoResize(editor);
+            editor.setSelectionRange(editor.value.length, editor.value.length);
+          });
+
+          // Move cursor to end
+          editor.setSelectionRange(editor.value.length, editor.value.length);
+
+          editor.addEventListener('input', () => autoResize(editor));
+
+          // Save on Enter
+          editor.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              editTask(i, editor.value);
+              render();
+            }
+            // Cancel on Escape
+            if (e.key === 'Escape') {
+              render();
+            }
+          });
+
+          // Save on blur
+          editor.addEventListener('blur', () => {
+            editTask(i, editor.value);
+            render();
+          });
+        });
+      }
 
       const pillEl = document.createElement('span');
       pillEl.className = `text-xs font-extrabold px-2.5 py-0.5 rounded-full ${pill} shrink-0`;
