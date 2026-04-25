@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -7,21 +6,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>✨Task Monitoring</title>
 
-  <!-- Tailwind -->
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#7c3aed" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Tasks" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
 
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Fonts -->
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Custom CSS -->
-
   <link rel="stylesheet" href="./src/css/style.css">
 
   <!-- Tailwind Config -->
-
   <script>
     tailwind.config = {
       theme: {
@@ -42,7 +45,6 @@
 
   <div class="max-w-lg mx-auto">
 
-
     <!-- Header -->
     <div class="text-center mb-6">
       <div class="text-5xl mb-2 select-none">🌸</div>
@@ -57,7 +59,6 @@
 
       <div class="flex items-center justify-between mt-3 px-1">
         <span class="text-xs text-violet-300 font-bold select-none"></span>
-
         <button id="addBtn"
           class="btn-pill bg-gradient-to-r from-pink-400 to-violet-500 text-white text-sm font-extrabold px-5 py-2 rounded-full shadow-soft hover:brightness-110">
           + Add ✨
@@ -73,7 +74,6 @@
           <span class="text-lg select-none">📋</span>
           <span class="font-extrabold text-violet-700 text-sm">Today's tasks</span>
         </div>
-
         <span id="taskCount" class="text-xs font-extrabold text-violet-400 bg-violet-50 px-3 py-1 rounded-full"></span>
       </div>
 
@@ -86,9 +86,18 @@
 
   </div>
 
-  <!-- JS (only once, at the bottom) -->
-
   <script type="module" src="./src/js/main.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => console.log('Service worker registered:', reg.scope))
+          .catch(err => console.error('Service worker registration failed:', err));
+      });
+    }
+  </script>
 
 </body>
 
