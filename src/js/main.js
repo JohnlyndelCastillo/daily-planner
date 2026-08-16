@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initUI();
 
   try {
-    const res = await fetch('/public/placeholder.json');
+    const res = await fetch('/placeholder.json');
     const phrases = await res.json();
     const input = document.getElementById('taskInput');
     rotatePlaceholder(input, phrases);
