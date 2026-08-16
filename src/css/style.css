@@ -21,3 +21,12 @@ textarea {
 .btn-pill:active {
   transform: scale(0.91);
 }
+
+.placeholder-fade::placeholder {
+  transition: opacity 0.4s ease;
+  opacity: 1;
+}
+
+.placeholder-fade.fading::placeholder {
+  opacity: 0;
+}

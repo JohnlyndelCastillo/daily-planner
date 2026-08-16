@@ -36,3 +36,18 @@ export function checkCarryOver() {
     showCarryOverBanner(unfinished);
   }
 }
+
+export function rotatePlaceholder(el, phrases, intervalMs = 15000) {
+  let current = 0;
+  el.placeholder = phrases[current];
+
+  setInterval(() => {
+    el.classList.add('fading');
+
+    setTimeout(() => {
+      current = (current + 1) % phrases.length;
+      el.placeholder = phrases[current];
+      el.classList.remove('fading');
+    }, 400);
+  }, intervalMs);
+}
