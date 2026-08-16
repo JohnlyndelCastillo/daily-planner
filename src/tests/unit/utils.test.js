@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { fmt, autoResize } from '../../js/utils.js';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { fmt, autoResize, rotatePlaceholder } from '../../js/utils.js';
 
 beforeEach(() => localStorage.clear());
 
@@ -63,5 +63,64 @@ describe('checkCarryOver', () => {
     const { checkCarryOver } = await import('../../js/utils.js');
     checkCarryOver();
     expect(document.getElementById('carryOverBanner')).toBeNull();
+  });
+});
+
+describe('rotatePlaceholder', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  it('sets initial placeholder to first phrase', () => {
+    const el = document.createElement('textarea');
+    const phrases = ['Phrase 1', 'Phrase 2', 'Phrase 3'];
+    rotatePlaceholder(el, phrases, 15000);
+    expect(el.placeholder).toBe('Phrase 1');
+  });
+
+  it('rotates to next phrase after interval', () => {
+    const el = document.createElement('textarea');
+    const phrases = ['Phrase 1', 'Phrase 2', 'Phrase 3'];
+    rotatePlaceholder(el, phrases, 15000);
+    vi.advanceTimersByTime(15000);
+    vi.advanceTimersByTime(400);
+    expect(el.placeholder).toBe('Phrase 2');
+  });
+
+  it('wraps back to first phrase after last', () => {
+    const el = document.createElement('textarea');
+    const phrases = ['Phrase 1', 'Phrase 2'];
+    rotatePlaceholder(el, phrases, 15000);
+    vi.advanceTimersByTime(15000);
+    vi.advanceTimersByTime(400);
+    vi.advanceTimersByTime(15000);
+    vi.advanceTimersByTime(400);
+    expect(el.placeholder).toBe('Phrase 1');
+  });
+
+  it('does not affect typed text when rotating', () => {
+    const el = document.createElement('textarea');
+    const phrases = ['Phrase 1', 'Phrase 2'];
+    rotatePlaceholder(el, phrases, 15000);
+    el.value = 'My typed text';
+    vi.advanceTimersByTime(15000);
+    vi.advanceTimersByTime(400);
+    expect(el.value).toBe('My typed text');
+  });
+
+  it('adds fading class during transition', () => {
+    const el = document.createElement('textarea');
+    const phrases = ['Phrase 1', 'Phrase 2'];
+    rotatePlaceholder(el, phrases, 15000);
+    vi.advanceTimersByTime(15000);
+    expect(el.classList.contains('fading')).toBe(true);
+  });
+
+  it('removes fading class after transition', () => {
+    const el = document.createElement('textarea');
+    const phrases = ['Phrase 1', 'Phrase 2'];
+    rotatePlaceholder(el, phrases, 15000);
+    vi.advanceTimersByTime(15000);
+    vi.advanceTimersByTime(400);
+    expect(el.classList.contains('fading')).toBe(false);
   });
 });
