@@ -179,8 +179,10 @@ export function initUI() {
       }
 
       actions.appendChild(mkBtn('✕ Remove', 'bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-400', () => {
-        deleteTask(i);
-        render();
+        if (confirm('Remove this task?')) {
+          deleteTask(i);
+          render();
+        }
       }));
 
       li.appendChild(top);
