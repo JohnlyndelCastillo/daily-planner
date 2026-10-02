@@ -1,9 +1,9 @@
 import { getTasks, saveTasks } from './storage.js';
 
 export const STATUS = {
-  todo: { icon: '🌿', label: 'To Do', pill: 'bg-emerald-100 text-emerald-700' },
-  doing: { icon: '⚡', label: 'Doing', pill: 'bg-sky-100 text-sky-600' },
-  done: { icon: '🌸', label: 'Done', pill: 'bg-pink-100 text-pink-600' },
+  todo: { icon: '<circle cx="12" cy="12" r="8"/>', label: 'To Do', pill: 'bg-emerald-100 text-emerald-700' },
+  doing: { icon: '<circle cx="12" cy="12" r="8"/><path d="m10 8 5 4-5 4z"/>', label: 'Doing', pill: 'bg-sky-100 text-sky-600' },
+  done: { icon: '<circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.3 2.3 4.7-4.7"/>', label: 'Done', pill: 'bg-pink-100 text-pink-600' },
 };
 
 export function addTask(text) {
