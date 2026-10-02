@@ -1,4 +1,4 @@
-const CACHE_NAME = 'daily-task-monitor-v3';
+const CACHE_NAME = 'daily-task-monitor-v4';
 
 const STATIC_ASSETS = [
   '/',

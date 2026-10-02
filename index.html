@@ -64,6 +64,23 @@
       <ul id="taskList" class="task-list"></ul>
     </section>
 
+    <section class="history-card card" aria-label="Task history">
+      <div class="history-heading">
+        <div>
+          <p class="eyebrow">PAST DAYS</p>
+          <h2>Task history</h2>
+          <p>Review tasks saved on previous days.</p>
+        </div>
+        <button id="historyToggle" class="action-button history-toggle" type="button" aria-expanded="false" aria-controls="historyPanel">View history</button>
+      </div>
+      <div id="historyPanel" class="history-panel hidden">
+        <label class="field-label" for="historyDate">SELECT A DAY</label>
+        <select id="historyDate" class="history-select"></select>
+        <p id="historySummary" class="history-summary" aria-live="polite"></p>
+        <ul id="historyTaskList" class="history-list"></ul>
+      </div>
+    </section>
+
     <footer class="page-footer">Your daily plan is saved automatically in this browser.</footer>
   </main>
 
