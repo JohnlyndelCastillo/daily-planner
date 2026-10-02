@@ -33,6 +33,7 @@ describe('Task history', () => {
       { text: 'Prepare tomorrow plan', status: 'todo', startTime: null, endTime: null },
     ]);
 
+    document.getElementById('insightsToggle').click();
     document.getElementById('historyToggle').click();
     const selector = document.getElementById('historyDate');
     expect(selector.value).toBe(yesterdayKey());

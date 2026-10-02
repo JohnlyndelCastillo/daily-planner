@@ -1,4 +1,4 @@
-const CACHE_NAME = 'daily-task-monitor-v4';
+const CACHE_NAME = 'daily-task-monitor-v5';
 
 const STATIC_ASSETS = [
   '/',
@@ -11,6 +11,7 @@ const STATIC_ASSETS = [
   '/src/js/tasks.js',
   '/src/js/ui.js',
   '/src/js/utils.js',
+  '/src/js/weeklySummary.js',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/icons/app-mark.svg',

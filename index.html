@@ -35,7 +35,51 @@
         <h2>A clear plan for today.</h2>
         <p>Capture your priorities and move them forward at your pace.</p>
       </div>
-      <div class="privacy-note"><svg class="inline-icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg> Private to this browser</div>
+      <div class="welcome-actions">
+        <div class="privacy-note"><svg class="inline-icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg> Private to this browser</div>
+        <button id="insightsToggle" class="action-button insights-toggle" type="button" aria-expanded="false" aria-controls="insightsPanel"><svg class="inline-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15v-4M13 15V7M18 15V9"/></svg><span>Progress &amp; history</span></button>
+      </div>
+    </section>
+
+    <section id="insightsPanel" class="insights-panel hidden" aria-label="Progress and history">
+      <section class="weekly-card card" aria-label="Weekly task summary">
+        <div class="weekly-heading">
+          <div>
+            <p class="eyebrow">THIS WEEK</p>
+            <h2>Weekly summary</h2>
+            <p id="weekRange" class="weekly-range"></p>
+          </div>
+        </div>
+        <div class="weekly-overview">
+          <div class="weekly-overview-copy">
+            <span id="weekProgressLabel" class="weekly-progress-label"></span>
+            <span id="weekPercent" class="weekly-percent"></span>
+          </div>
+          <div class="weekly-progress-track" role="progressbar" aria-label="Weekly completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div id="weekProgressBar" class="weekly-progress-bar"></div>
+          </div>
+        </div>
+        <div class="week-days-scroll" role="region" aria-label="Daily completion by weekday; scroll horizontally to see all days" tabindex="0">
+          <ul id="weekDays" class="week-days"></ul>
+        </div>
+      </section>
+
+      <section class="history-card card" aria-label="Task history">
+        <div class="history-heading">
+          <div>
+            <p class="eyebrow">PAST DAYS</p>
+            <h2>Task history</h2>
+            <p>Review tasks saved on previous days.</p>
+          </div>
+          <button id="historyToggle" class="action-button history-toggle" type="button" aria-expanded="false" aria-controls="historyPanel">View history</button>
+        </div>
+        <div id="historyPanel" class="history-panel hidden">
+          <label class="field-label" for="historyDate">SELECT A DAY</label>
+          <select id="historyDate" class="history-select"></select>
+          <p id="historySummary" class="history-summary" aria-live="polite"></p>
+          <ul id="historyTaskList" class="history-list"></ul>
+        </div>
+      </section>
     </section>
 
     <section class="composer card" aria-label="Add a task">
@@ -62,23 +106,6 @@
         <p><strong>Local storage:</strong> Your tasks stay in this browser on this device.</p>
       </div>
       <ul id="taskList" class="task-list"></ul>
-    </section>
-
-    <section class="history-card card" aria-label="Task history">
-      <div class="history-heading">
-        <div>
-          <p class="eyebrow">PAST DAYS</p>
-          <h2>Task history</h2>
-          <p>Review tasks saved on previous days.</p>
-        </div>
-        <button id="historyToggle" class="action-button history-toggle" type="button" aria-expanded="false" aria-controls="historyPanel">View history</button>
-      </div>
-      <div id="historyPanel" class="history-panel hidden">
-        <label class="field-label" for="historyDate">SELECT A DAY</label>
-        <select id="historyDate" class="history-select"></select>
-        <p id="historySummary" class="history-summary" aria-live="polite"></p>
-        <ul id="historyTaskList" class="history-list"></ul>
-      </div>
     </section>
 
     <footer class="page-footer">Your daily plan is saved automatically in this browser.</footer>
