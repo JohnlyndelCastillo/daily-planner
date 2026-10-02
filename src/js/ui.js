@@ -1,6 +1,7 @@
 import { getTasks, getAllDates, getTasksByDate } from './storage.js';
 import { fmt, autoResize, checkCarryOver } from './utils.js';
 import { startTask, markDone, deleteTask, addTask, STATUS, carryOverTask, editTask } from './tasks.js';
+import { getWeeklySummary } from './weeklySummary.js';
 
 export function initUI() {
   const input = document.getElementById('taskInput');
@@ -15,6 +16,14 @@ export function initUI() {
   const historyDate = document.getElementById('historyDate');
   const historySummary = document.getElementById('historySummary');
   const historyTaskList = document.getElementById('historyTaskList');
+  const insightsToggle = document.getElementById('insightsToggle');
+  const insightsPanel = document.getElementById('insightsPanel');
+  const weekRange = document.getElementById('weekRange');
+  const weekProgressLabel = document.getElementById('weekProgressLabel');
+  const weekPercent = document.getElementById('weekPercent');
+  const weekProgressTrack = document.querySelector('.weekly-progress-track');
+  const weekProgressBar = document.getElementById('weekProgressBar');
+  const weekDays = document.getElementById('weekDays');
 
   if (guideToggle && guideBox) {
     guideToggle.addEventListener('click', () => {
@@ -33,6 +42,15 @@ export function initUI() {
     });
     historyDate.addEventListener('change', renderHistory);
     renderHistory();
+  }
+
+  if (insightsToggle && insightsPanel) {
+    insightsToggle.addEventListener('click', () => {
+      const expanded = insightsToggle.getAttribute('aria-expanded') === 'true';
+      insightsToggle.setAttribute('aria-expanded', String(!expanded));
+      insightsPanel.classList.toggle('hidden', expanded);
+      insightsToggle.querySelector('span').textContent = expanded ? 'Progress & history' : 'Hide progress';
+    });
   }
 
   dateEl.textContent = new Date().toLocaleDateString([], {
@@ -128,7 +146,49 @@ export function initUI() {
     return new Date(year, month - 1, day).toLocaleDateString([], options);
   }
 
+  function renderWeeklySummary() {
+    if (!weekRange || !weekProgressLabel || !weekPercent || !weekProgressTrack || !weekProgressBar || !weekDays) return;
+
+    const summary = getWeeklySummary();
+    weekRange.textContent = `${formatDateKey(summary.startDate, { month: 'short', day: 'numeric', year: 'numeric' })} – ${formatDateKey(summary.endDate, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    weekProgressLabel.textContent = `${summary.totalCompleted} of ${summary.totalTasks} tasks completed`;
+    weekPercent.textContent = `${summary.completionRate}%`;
+    weekProgressTrack.setAttribute('aria-valuenow', String(summary.completionRate));
+    weekProgressBar.style.width = `${summary.completionRate}%`;
+    weekDays.replaceChildren();
+
+    summary.days.forEach(day => {
+      const row = document.createElement('li');
+      row.className = day.isToday ? 'week-day today' : 'week-day';
+
+      const label = document.createElement('span');
+      label.className = `week-day-label${day.isToday ? ' today' : ''}`;
+      label.textContent = day.isToday ? 'Today' : formatDateKey(day.key, { weekday: 'short' });
+
+      const date = document.createElement('span');
+      date.className = 'week-day-date';
+      date.textContent = formatDateKey(day.key, { month: 'short', day: 'numeric' });
+
+      const track = document.createElement('div');
+      track.className = 'week-day-track';
+      track.setAttribute('aria-hidden', 'true');
+      const bar = document.createElement('div');
+      bar.className = 'week-day-bar';
+      bar.style.width = `${day.tasks === 0 ? 0 : (day.completed / day.tasks) * 100}%`;
+      track.appendChild(bar);
+
+      const total = document.createElement('span');
+      total.className = 'week-day-total';
+      total.textContent = day.tasks === 0 ? '—' : `${day.completed}/${day.tasks}`;
+      const heading = document.createElement('div');
+      heading.append(label, date);
+      row.append(heading, track, total);
+      weekDays.appendChild(row);
+    });
+  }
+
   function render() {
+    renderWeeklySummary();
     const tasks = getTasks();
     list.innerHTML = '';
 
