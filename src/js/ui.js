@@ -8,6 +8,16 @@ export function initUI() {
   const list = document.getElementById('taskList');
   const countEl = document.getElementById('taskCount');
   const dateEl = document.getElementById('dateLabel');
+  const guideToggle = document.getElementById('guideToggle');
+  const guideBox = document.getElementById('tooltipBox');
+
+  if (guideToggle && guideBox) {
+    guideToggle.addEventListener('click', () => {
+      const expanded = guideToggle.getAttribute('aria-expanded') === 'true';
+      guideToggle.setAttribute('aria-expanded', String(!expanded));
+      guideBox.classList.toggle('hidden', expanded);
+    });
+  }
 
   dateEl.textContent = new Date().toLocaleDateString([], {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
@@ -19,6 +29,9 @@ export function initUI() {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleAdd();
+    } else if (e.key === 'Enter' && e.shiftKey) {
+      // Let the browser insert the newline before measuring the new height.
+      requestAnimationFrame(() => autoResize(input));
     }
   });
 
@@ -37,7 +50,8 @@ export function initUI() {
 
   function mkBtn(label, cls, onClick) {
     const b = document.createElement('button');
-    b.className = `btn-pill text-xs font-extrabold px-3 py-1.5 rounded-full ${cls}`;
+    b.type = 'button';
+    b.className = `action-button ${cls}`;
     b.textContent = label;
     b.addEventListener('click', onClick);
     return b;
@@ -48,30 +62,26 @@ export function initUI() {
     list.innerHTML = '';
 
     const doneCount = tasks.filter(t => t.status === 'done').length;
-    countEl.textContent =
-      tasks.length === 0 ? 'Empty' : `${doneCount} / ${tasks.length} done`;
+    countEl.textContent = tasks.length === 0 ? 'Empty' : `${doneCount} / ${tasks.length} done`;
 
     if (tasks.length === 0) {
       const li = document.createElement('li');
-      li.className = 'py-12 text-center text-violet-300 font-bold text-sm';
-      li.innerHTML = `
-        <div class="text-4xl mb-3">🌱</div>
-        Nothing yet — add your first task!
-      `;
+      li.className = 'empty-state';
+      li.innerHTML = '<svg class="empty-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nothing yet. Add a task above to get started.';
       list.appendChild(li);
       return;
     }
 
     tasks.forEach((task, i) => {
-      const { icon, label, pill } = STATUS[task.status];
+      const { icon, label } = STATUS[task.status];
 
       const li = document.createElement('li');
-      li.className = 'task-enter px-5 py-4';
+      li.className = 'task-enter';
 
       // Carried over indicator
       if (task.carriedOver) {
         const tag = document.createElement('div');
-        tag.className = 'text-xs font-bold text-amber-400 mb-1 pl-7';
+        tag.className = 'carry-tag';
 
         const [year, month, day] = task.carriedFrom.split('-');
         const fromDate = new Date(year, month - 1, day).toLocaleDateString([], {
@@ -83,24 +93,25 @@ export function initUI() {
       }
 
       const top = document.createElement('div');
-      top.className = 'flex items-start gap-2';
+      top.className = 'task-top';
 
       const iconEl = document.createElement('span');
-      iconEl.className = 'text-base mt-0.5 shrink-0';
-      iconEl.textContent = icon;
+      iconEl.className = 'task-icon';
+      iconEl.setAttribute('aria-hidden', 'true');
+      iconEl.innerHTML = `<svg viewBox="0 0 24 24">${icon}</svg>`;
 
       const textEl = document.createElement('span');
-      textEl.className = 'flex-1 min-w-0 text-sm font-semibold text-gray-700 whitespace-pre-wrap break-words';
+      textEl.className = `task-text${task.status === 'done' ? ' completed' : ''}`;
       textEl.textContent = task.text;
 
       if (task.status === 'todo' || task.status === 'doing') {
         textEl.title = 'Double click to edit';
-        textEl.classList.add('cursor-pointer');
+        textEl.classList.add('editable');
 
         textEl.addEventListener('dblclick', () => {
           // Replace span with textarea
           const editor = document.createElement('textarea');
-          editor.className = 'flex-1 min-w-0 text-sm font-semibold text-gray-700 bg-pink-50 rounded-xl px-2 py-1 border border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none';
+          editor.className = 'task-text';
           editor.value = task.text;
           autoResize(editor);
           textEl.replaceWith(editor);
@@ -139,14 +150,14 @@ export function initUI() {
       }
 
       const pillEl = document.createElement('span');
-      pillEl.className = `text-xs font-extrabold px-2.5 py-0.5 rounded-full ${pill} shrink-0`;
+      pillEl.className = `status-pill status-${task.status}`;
       pillEl.textContent = label;
 
       top.append(iconEl, textEl, pillEl);
 
       // Time chips
       const timeRow = document.createElement('div');
-      timeRow.className = 'flex gap-4 mt-1 pl-7 text-xs text-gray-400 font-semibold';
+      timeRow.className = 'task-meta';
 
       if (task.startTime) {
         const c = document.createElement('span');
@@ -162,23 +173,23 @@ export function initUI() {
       // Action buttons
 
       const actions = document.createElement('div');
-      actions.className = 'flex gap-2 mt-3 pl-7';
+      actions.className = 'task-actions';
 
       if (task.status === 'todo') {
-        actions.appendChild(mkBtn('▶ Start', 'bg-sky-100 text-sky-600 hover:bg-sky-200', () => {
+        actions.appendChild(mkBtn('▶ Start', 'action-primary', () => {
           startTask(i);
           render();
         }));
       }
 
       if (task.status === 'doing') {
-        actions.appendChild(mkBtn('✓ Done', 'bg-pink-100 text-pink-600 hover:bg-pink-200', () => {
+        actions.appendChild(mkBtn('✓ Done', 'action-primary', () => {
           markDone(i);
           render();
         }));
       }
 
-      actions.appendChild(mkBtn('✕ Remove', 'bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-400', () => {
+      actions.appendChild(mkBtn('Remove', 'action-danger', () => {
         if (confirm('Remove this task?')) {
           deleteTask(i);
           render();
@@ -207,18 +218,18 @@ export function showCarryOverBanner(unfinished) {
 
   const banner = document.createElement('div');
   banner.id = 'carryOverBanner';
-  banner.className = 'bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 mb-4';
+  banner.className = 'carry-banner';
 
   const top = document.createElement('div');
   top.className = 'flex items-center justify-between mb-3';
 
   const title = document.createElement('p');
-  title.className = 'text-sm font-extrabold text-amber-600';
-  title.textContent = `↩ ${unfinished.length} Unfinished Task${unfinished.length > 1 ? 's' : ''} from Yesterday`;
+  title.className = 'carry-title';
+  title.textContent = `${unfinished.length} unfinished task${unfinished.length > 1 ? 's' : ''} from previous days`;
 
   const dismiss = document.createElement('button');
-  dismiss.className = 'text-xs font-bold text-amber-400 hover:text-amber-600';
-  dismiss.textContent = '✕ Dismiss';
+  dismiss.className = 'action-button';
+  dismiss.textContent = 'Dismiss';
   dismiss.addEventListener('click', () => {
     localStorage.setItem(seenKey, 'true'); // mark as seen so banner doesn't show again
     banner.remove();
@@ -227,21 +238,20 @@ export function showCarryOverBanner(unfinished) {
   top.append(title, dismiss);
 
   const taskList = document.createElement('ul');
-  taskList.className = 'space-y-1 mb-3';
+  taskList.className = 'carry-list';
 
   unfinished.forEach(task => {
     const li = document.createElement('li');
-    li.className = 'text-xs font-semibold text-amber-700 truncate';
-    li.textContent = `• ${task.text}`;
+    li.textContent = task.text;
     taskList.appendChild(li);
   });
 
   const actions = document.createElement('div');
-  actions.className = 'flex gap-2';
+  actions.className = 'carry-actions';
 
   const carryAllBtn = document.createElement('button');
-  carryAllBtn.className = 'btn-pill text-xs font-extrabold px-3 py-1.5 rounded-full bg-amber-400 text-white hover:bg-amber-500';
-  carryAllBtn.textContent = '↩ Carry All Over';
+  carryAllBtn.className = 'carry-button';
+  carryAllBtn.textContent = 'Carry All Over';
   carryAllBtn.addEventListener('click', () => {
     unfinished.forEach(task => carryOverTask(task));
     localStorage.setItem(seenKey, 'true'); // mark as seen so banner doesn't show again
@@ -250,7 +260,7 @@ export function showCarryOverBanner(unfinished) {
   });
 
   const dismissAllBtn = document.createElement('button');
-  dismissAllBtn.className = 'btn-pill text-xs font-extrabold px-3 py-1.5 rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200';
+  dismissAllBtn.className = 'carry-button carry-dismiss';
   dismissAllBtn.textContent = 'Dismiss';
   dismissAllBtn.addEventListener('click', () => {
     localStorage.setItem(seenKey, 'true'); // mark as seen so banner doesn't show again
@@ -261,6 +271,7 @@ export function showCarryOverBanner(unfinished) {
   banner.append(top, taskList, actions);
 
   // Insert banner above the task list card
-  const taskCard = document.querySelector('#taskList').closest('.rounded-3xl');
+  const renderedTaskList = document.querySelector('#taskList');
+  const taskCard = renderedTaskList.closest('.task-card') || document.getElementById('taskCard') || renderedTaskList.parentElement;
   taskCard.parentElement.insertBefore(banner, taskCard);
 }

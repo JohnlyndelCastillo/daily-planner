@@ -1,4 +1,4 @@
-const CACHE_NAME = 'daily-task-monitor-v1';
+const CACHE_NAME = 'daily-task-monitor-v3';
 
 const STATIC_ASSETS = [
   '/',
@@ -13,6 +13,7 @@ const STATIC_ASSETS = [
   '/src/js/utils.js',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
+  '/icons/app-mark.svg',
 ];
 
 // Install — cache only your own assets
@@ -35,20 +36,24 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Fetch — cache first for own assets, network first for CDN
+// Fetch — network first for same-origin assets and CDN files
 self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+
   const url = new URL(event.request.url);
 
-  // Cache first for same-origin assets
+  // Prefer fresh same-origin files, keeping a cached copy for offline use.
   if (url.origin === self.location.origin) {
     event.respondWith(
-      caches.match(event.request).then(cached => {
-        return cached || fetch(event.request).then(response => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-          return response;
-        });
-      }).catch(() => caches.match('/index.html'))
+      fetch(event.request).then(response => {
+        if (!response.ok) return response;
+        return caches.open(CACHE_NAME)
+          .then(cache => cache.put(event.request, response.clone()))
+          .then(() => response);
+      }).catch(async () => {
+        const cached = await caches.match(event.request);
+        return cached || (event.request.mode === 'navigate' ? caches.match('/index.html') : Response.error());
+      })
     );
     return;
   }
