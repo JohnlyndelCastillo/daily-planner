@@ -1,4 +1,4 @@
-import { getTasks } from './storage.js';
+import { getTasks, getAllDates, getTasksByDate } from './storage.js';
 import { fmt, autoResize, checkCarryOver } from './utils.js';
 import { startTask, markDone, deleteTask, addTask, STATUS, carryOverTask, editTask } from './tasks.js';
 
@@ -10,6 +10,11 @@ export function initUI() {
   const dateEl = document.getElementById('dateLabel');
   const guideToggle = document.getElementById('guideToggle');
   const guideBox = document.getElementById('tooltipBox');
+  const historyToggle = document.getElementById('historyToggle');
+  const historyPanel = document.getElementById('historyPanel');
+  const historyDate = document.getElementById('historyDate');
+  const historySummary = document.getElementById('historySummary');
+  const historyTaskList = document.getElementById('historyTaskList');
 
   if (guideToggle && guideBox) {
     guideToggle.addEventListener('click', () => {
@@ -17,6 +22,17 @@ export function initUI() {
       guideToggle.setAttribute('aria-expanded', String(!expanded));
       guideBox.classList.toggle('hidden', expanded);
     });
+  }
+
+  if (historyToggle && historyPanel && historyDate && historySummary && historyTaskList) {
+    historyToggle.addEventListener('click', () => {
+      const expanded = historyToggle.getAttribute('aria-expanded') === 'true';
+      historyToggle.setAttribute('aria-expanded', String(!expanded));
+      historyPanel.classList.toggle('hidden', expanded);
+      historyToggle.textContent = expanded ? 'View history' : 'Hide history';
+    });
+    historyDate.addEventListener('change', renderHistory);
+    renderHistory();
   }
 
   dateEl.textContent = new Date().toLocaleDateString([], {
@@ -55,6 +71,61 @@ export function initUI() {
     b.textContent = label;
     b.addEventListener('click', onClick);
     return b;
+  }
+
+  function renderHistory() {
+    const todayKey = new Date().toISOString().split('T')[0];
+    const dates = getAllDates()
+      .filter(date => date < todayKey && getTasksByDate(date).length > 0)
+      .sort((a, b) => b.localeCompare(a));
+    const previousSelection = historyDate.value;
+    historyDate.innerHTML = '';
+
+    if (dates.length === 0) {
+      const option = document.createElement('option');
+      option.value = '';
+      option.textContent = 'No saved days yet';
+      historyDate.appendChild(option);
+      historyDate.disabled = true;
+      historySummary.textContent = 'Past tasks will appear here as you use the planner.';
+      historyTaskList.replaceChildren();
+      return;
+    }
+
+    historyDate.disabled = false;
+    dates.forEach(date => {
+      const option = document.createElement('option');
+      option.value = date;
+      option.textContent = formatDateKey(date, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+      historyDate.appendChild(option);
+    });
+    historyDate.value = dates.includes(previousSelection) ? previousSelection : dates[0];
+
+    const tasks = getTasksByDate(historyDate.value);
+    const completeCount = tasks.filter(task => task.status === 'done').length;
+    historySummary.textContent = `${completeCount} of ${tasks.length} tasks completed`;
+    historyTaskList.replaceChildren();
+
+    tasks.forEach(task => {
+      const item = document.createElement('li');
+      item.className = 'history-task';
+
+      const text = document.createElement('span');
+      text.className = `history-task-text${task.status === 'done' ? ' completed' : ''}`;
+      text.textContent = task.text;
+
+      const badge = document.createElement('span');
+      badge.className = `status-pill status-${STATUS[task.status] ? task.status : 'todo'}`;
+      badge.textContent = STATUS[task.status]?.label || STATUS.todo.label;
+
+      item.append(text, badge);
+      historyTaskList.appendChild(item);
+    });
+  }
+
+  function formatDateKey(dateKey, options) {
+    const [year, month, day] = dateKey.split('-').map(Number);
+    return new Date(year, month - 1, day).toLocaleDateString([], options);
   }
 
   function render() {
