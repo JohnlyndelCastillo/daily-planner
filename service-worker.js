@@ -1,4 +1,4 @@
-const CACHE_NAME = 'daily-task-monitor-v5';
+const CACHE_NAME = 'daily-planner-v9';
 
 const STATIC_ASSETS = [
   '/',
@@ -12,6 +12,7 @@ const STATIC_ASSETS = [
   '/src/js/ui.js',
   '/src/js/utils.js',
   '/src/js/weeklySummary.js',
+  '/src/js/quickAdd.js',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/icons/app-mark.svg',
@@ -59,8 +60,8 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Network first then cache for CDN assets (Tailwind, Google Fonts)
-  if (url.href.includes('cdn.tailwindcss.com') || url.href.includes('fonts.googleapis.com') || url.href.includes('fonts.gstatic.com')) {
+  // The optional DM Sans font is the only external resource. The app has a system-font fallback.
+  if (url.href.includes('fonts.googleapis.com') || url.href.includes('fonts.gstatic.com')) {
     event.respondWith(
       fetch(event.request).then(response => {
         const clone = response.clone();

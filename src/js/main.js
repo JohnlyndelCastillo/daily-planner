@@ -1,15 +1,16 @@
+import { initStorage } from './storage.js';
 import { initUI } from './ui.js';
-import { rotatePlaceholder } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  initUI();
-
   try {
-    const res = await fetch('/placeholder.json');
-    const phrases = await res.json();
-    const input = document.getElementById('taskInput');
-    rotatePlaceholder(input, phrases);
-  } catch (err) {
-    console.warn('Could not load placeholders:', err);
+    await initStorage();
+    await initUI();
+  } catch (error) {
+    console.error('Could not start Daily Planner:', error);
+    const message = document.getElementById('statusMessage');
+    if (message) {
+      message.textContent = error?.message || 'The planner could not start.';
+      message.classList.add('visible');
+    }
   }
 });

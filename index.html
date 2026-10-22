@@ -1,119 +1,153 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Daily Planner</title>
-  <meta name="theme-color" content="#f5f7fb" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4f5fb" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Daily Planner" />
+  <title>Daily Planner</title>
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="./src/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./src/css/style.css" />
 </head>
-<body class="min-h-screen">
-  <main class="page-shell">
-    <header class="page-header">
-      <div class="brand-mark" aria-hidden="true">D</div>
-      <div class="header-copy">
-        <p class="eyebrow">PERSONAL WORKSPACE</p>
-        <h1>Daily planner</h1>
-        <p id="dateLabel" class="date-label"></p>
+<body data-current-view="today">
+  <div class="app-shell">
+    <header class="app-header" data-view="today">
+      <div class="brand-lockup">
+        <a class="brand-mark" href="#today" aria-label="Daily Planner home">D</a>
+        <div>
+          <p class="eyebrow" id="dateLabel"><span class="desktop-date"></span><span class="mobile-date"></span></p>
+          <h1 id="viewTitle">Today</h1>
+          <h1 id="todayDesktopTitle">Plan today, then protect your time</h1>
+        </div>
       </div>
-      <div class="save-indicator" title="Tasks are stored in this browser on this device">
-        <span class="save-dot" aria-hidden="true"></span>
-        <span>Saved on this device</span>
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <button class="nav-button active" type="button" data-view="today">Today</button>
+        <button class="nav-button" type="button" data-view="week">Week</button>
+        <button class="nav-button" type="button" data-view="blocks">Blocks</button>
+        <button class="nav-button" type="button" data-view="data">Data</button>
+      </nav>
+      <div class="header-actions">
+        <button id="carryOverBtn" class="button secondary-button hidden" type="button">Carry over</button>
+        <button id="headerFocusBtn" class="button primary-button" type="button">Start focus session</button>
       </div>
     </header>
 
-    <section class="welcome-row" aria-label="Planning overview">
-      <div>
-        <h2>A clear plan for today.</h2>
-        <p>Capture your priorities and move them forward at your pace.</p>
-      </div>
-      <div class="welcome-actions">
-        <div class="privacy-note"><svg class="inline-icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg> Private to this browser</div>
-        <button id="insightsToggle" class="action-button insights-toggle" type="button" aria-expanded="false" aria-controls="insightsPanel"><svg class="inline-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15v-4M13 15V7M18 15V9"/></svg><span>Progress &amp; history</span></button>
-      </div>
-    </section>
+    <main id="mainContent">
+      <section id="view-today" class="view active" aria-labelledby="viewTitle">
+        <div id="backupReminder" class="notice-card warning-notice hidden" role="status">
+          <div><strong>Keep a backup of your plan</strong><p>Your planner is stored on this device. Export a backup from Data to keep a copy.</p></div>
+          <button id="dismissBackupReminder" class="icon-button" type="button" aria-label="Dismiss backup reminder">×</button>
+        </div>
+        <section id="welcomeCard" class="card welcome-card hidden">
+          <p class="eyebrow">A LITTLE SPACE FOR YOUR PLAN</p>
+          <h2>Plan the day. See the week.</h2>
+          <p>Pick your top three, give tasks a time, and review at the end of the week.</p>
+          <div class="notice-card warning-notice welcome-note">Your plan stays on this device. Back it up from Data anytime.</div>
+          <button id="startPlanningBtn" class="button primary-button full-button" type="button">Start planning</button>
+        </section>
+        <div class="overview-grid">
+          <section id="progressCard" class="card progress-card" aria-label="Today's progress">
+            <div class="progress-copy"><strong id="taskCount">0 of 0 done</strong><span id="plannedTime">No time planned</span></div>
+            <div class="progress-track" role="progressbar" aria-label="Today's completed tasks" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="todayProgressBar"></span></div>
+          </section>
+          <section id="upNextCard" class="up-next-card hidden" aria-label="Up next">
+            <div><p id="upNextLabel">UP NEXT</p><h2 id="upNextTitle"></h2></div>
+            <button id="upNextFocusBtn" class="button light-button" type="button">Start focus session</button>
+          </section>
+        </div>
+        <div class="planning-grid">
+          <section class="card today-schedule"><div class="section-heading"><div><p class="eyebrow">TIME BLOCKS</p><h2>Today's schedule</h2></div><span id="todayPlannedSummary" class="schedule-summary">0m planned of 6h free</span></div><div class="schedule-capacity"><div class="capacity-track" role="progressbar" aria-label="Today's planned capacity" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="todayCapacityBar"></span></div></div><div id="todayTimeline" class="timeline compact-timeline"></div></section>
+          <section class="card quick-add-card"><label class="field-label" for="desktopQuickInput">QUICK ADD</label><div class="quick-add-row"><input id="desktopQuickInput" type="text" placeholder="Review pass slip bug #work ~45m !high @14:00" autocomplete="off" /><button id="desktopQuickAddBtn" class="button primary-button" type="button">Add with details</button></div><p class="field-hint">Press Enter for quick add, or open details to set priority, day, tag, and time.</p></section>
+          <div class="task-stack">
+            <section class="card task-section"><div class="section-heading"><div><p class="eyebrow">TOP 3</p><h2>Must-do today</h2></div><span id="topCount" class="count-chip">0 of 3</span></div><ul id="topTaskList" class="task-list"></ul></section>
+            <section class="card later-section"><div class="section-heading later-heading"><p class="eyebrow">LATER TODAY</p></div><ul id="taskList" class="task-list later-list"></ul></section>
+          </div>
+        </div>
+        <section id="emptyCard" class="card empty-card hidden">
+          <h2>Nothing planned yet</h2>
+          <p>Add your first task, or pull in unfinished ones from yesterday.</p>
+          <button id="emptyAddTaskBtn" class="button primary-button full-button" type="button">Add a task</button>
+          <button id="emptyCarryOverBtn" class="button secondary-button full-button" type="button">Carry over from yesterday</button>
+        </section>
+      </section>
 
-    <section id="insightsPanel" class="insights-panel hidden" aria-label="Progress and history">
-      <section class="weekly-card card" aria-label="Weekly task summary">
-        <div class="weekly-heading">
-          <div>
-            <p class="eyebrow">THIS WEEK</p>
-            <h2>Weekly summary</h2>
-            <p id="weekRange" class="weekly-range"></p>
-          </div>
+      <section id="view-week" class="view" aria-labelledby="viewTitle">
+        <div class="view-intro week-intro"><div><p class="eyebrow" id="weekRange"></p><h2><span class="desktop-week-title">Weekly review</span><span class="mobile-week-title">Week</span></h2></div><div class="week-range-actions"><button id="previousWeekBtn" class="button secondary-button" type="button" aria-label="Previous week">‹</button><button id="nextWeekBtn" class="button secondary-button" type="button" aria-label="Next week">›</button></div><p class="muted">A small look back at what moved forward.</p></div>
+        <div id="weekDays" class="week-days" aria-label="Tasks completed each day"></div>
+        <div class="stats-grid">
+          <section class="card stat-card"><p class="eyebrow">COMPLETED</p><strong id="weekProgressLabel">0 of 0</strong></section>
+          <section class="card stat-card"><p class="eyebrow">FOCUS TIME</p><strong id="weekFocusTime">0m</strong></section>
+          <section id="weekCarryStat" class="card stat-card"><p class="eyebrow">CARRIED OVER</p><strong id="weekCarryCount">0 tasks</strong></section>
+          <section id="weekBestStat" class="card stat-card"><p class="eyebrow">BEST DAY</p><strong id="weekBestDay">—</strong></section>
         </div>
-        <div class="weekly-overview">
-          <div class="weekly-overview-copy">
-            <span id="weekProgressLabel" class="weekly-progress-label"></span>
-            <span id="weekPercent" class="weekly-percent"></span>
-          </div>
-          <div class="weekly-progress-track" role="progressbar" aria-label="Weekly completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-            <div id="weekProgressBar" class="weekly-progress-bar"></div>
-          </div>
-        </div>
-        <div class="week-days-scroll" role="region" aria-label="Daily completion by weekday; scroll horizontally to see all days" tabindex="0">
-          <ul id="weekDays" class="week-days"></ul>
+        <div class="week-content-grid">
+          <section class="card chart-card"><div class="section-heading"><div><p class="eyebrow">THIS WEEK</p><h2>Planned vs done</h2></div></div><div id="weekChart" class="week-chart" aria-label="Planned and completed tasks by day"></div><div id="tagStats" class="tag-stats"></div></section>
+          <div class="week-review-column"><section class="card triage-card"><div class="section-heading"><div><p class="eyebrow">CARRY-OVER TRIAGE</p><h2>Decide what stays</h2></div></div><ul id="triageList" class="triage-list"></ul><div class="reflection-card"><label class="eyebrow" for="reflectionInput">REFLECTION</label><textarea id="reflectionInput" rows="3" placeholder="What went well this week?"></textarea><div class="reflection-footer"><span id="reflectionStatus" class="muted" aria-live="polite"></span><button id="planNextWeekBtn" class="button primary-button" type="button">Plan next week</button></div></div></section></div>
         </div>
       </section>
 
-      <section class="history-card card" aria-label="Task history">
-        <div class="history-heading">
-          <div>
-            <p class="eyebrow">PAST DAYS</p>
-            <h2>Task history</h2>
-            <p>Review tasks saved on previous days.</p>
-          </div>
-          <button id="historyToggle" class="action-button history-toggle" type="button" aria-expanded="false" aria-controls="historyPanel">View history</button>
-        </div>
-        <div id="historyPanel" class="history-panel hidden">
-          <label class="field-label" for="historyDate">SELECT A DAY</label>
-          <select id="historyDate" class="history-select"></select>
-          <p id="historySummary" class="history-summary" aria-live="polite"></p>
-          <ul id="historyTaskList" class="history-list"></ul>
-        </div>
+      <section id="view-blocks" class="view" aria-labelledby="viewTitle">
+        <div class="view-intro blocks-intro"><p class="eyebrow" id="blocksDateLabel"></p><h2>Blocks</h2></div>
+        <section class="card capacity-card"><strong id="capacitySummary">0m planned</strong><label class="free-hours-control"><input id="freeHoursInput" type="number" min="1" max="24" step="0.5" value="6" aria-label="Free hours per day" /><span>h free</span></label><div class="capacity-track" role="progressbar" aria-label="Daily capacity"><span id="capacityBar"></span></div><p id="capacityNote" class="muted hidden"></p></section>
+        <section class="card timeline-card"><div class="section-heading"><div><p class="eyebrow">TIME BLOCKS</p><h2>Today's timeline</h2></div></div><div id="timeline" class="timeline"></div></section>
+        <section class="card unscheduled-card"><div class="section-heading"><div><p class="eyebrow">UNSCHEDULED</p><h2>Find a place for it</h2></div></div><ul id="unscheduledList" class="unscheduled-list"></ul></section>
       </section>
-    </section>
 
-    <section class="composer card" aria-label="Add a task">
-      <label class="field-label" for="taskInput">ADD A TASK</label>
-      <div class="composer-row">
-        <textarea id="taskInput" rows="2" placeholder="What would you like to get done?" aria-label="Task description"></textarea>
-        <button id="addBtn" class="primary-button" type="button"><svg class="button-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add task</button>
-      </div>
-      <p class="field-hint">Press Enter to add · Shift + Enter for a new line</p>
-    </section>
+      <section id="view-data" class="view" aria-labelledby="viewTitle">
+        <div class="view-intro"><p class="eyebrow">SETTINGS</p><h2>Your data</h2></div>
+        <section class="card data-warning"><div class="data-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></div><div><h3>Stored on this device only</h3><p>Clearing browser data or switching devices can remove your plan. Last backup: <strong id="lastBackupLabel">never</strong>.</p></div></section>
+        <section class="card data-card"><p class="eyebrow">BACKUP</p><p>Save everything as a file you keep, or restore from one.</p><div class="data-actions"><button id="exportBtn" class="button primary-button" type="button">Export backup (.json)</button><button id="importBtn" class="button secondary-button" type="button">Import backup</button><input id="backupFile" type="file" accept="application/json,.json" aria-label="Choose a Daily Planner backup file" hidden /></div><label class="setting-row"><span><strong>Weekly backup reminder</strong><small>A gentle reminder if you have not exported in a week.</small></span><input id="backupReminderToggle" type="checkbox" /></label><div class="setting-row"><span><strong>Keep data when storage is low</strong><small id="storagePersistenceStatus">Checking browser storage support…</small></span><span id="storagePersistenceBadge" class="status-badge">Checking</span></div></section>
+        <section class="card data-card move-data-card"><p class="eyebrow">MOVE TO ANOTHER DEVICE</p><p>Export a backup here, then import it on your other device. Your plan never leaves your hands.</p><button id="shareBtn" class="button secondary-button" type="button">Export and share backup</button></section>
+        <section class="card data-card"><p class="eyebrow">PLANNING PREFERENCES</p><div class="setting-row"><label for="focusLengthInput"><strong>Focus session</strong><small>Default focus length in minutes.</small></label><div class="number-control"><input id="focusLengthInput" type="number" min="5" max="120" step="5" value="25" /><span>min</span></div></div><div class="setting-row"><label for="dayStartInput"><strong>Day starts</strong><small>Timeline display start time.</small></label><input id="dayStartInput" type="time" value="08:00" /></div><div class="setting-row"><label for="dayEndInput"><strong>Day ends</strong><small>Timeline display end time.</small></label><input id="dayEndInput" type="time" value="17:00" /></div></section>
+      </section>
+    </main>
 
-    <section class="task-card card" aria-label="Today's tasks">
-      <div class="task-heading">
-        <div>
-          <p class="eyebrow">YOUR PLAN</p>
-          <h2>Today’s tasks</h2>
-        </div>
-        <span id="taskCount" class="task-count" aria-live="polite"></span>
-      </div>
-      <button id="guideToggle" class="guide-toggle" type="button" aria-expanded="false" aria-controls="tooltipBox">How it works <svg class="inline-icon info-icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></button>
-      <div id="tooltipBox" class="guide-box hidden">
-        <p><strong>Edit:</strong> Double-click or double-tap a task in To Do or In Progress.</p>
-        <p><strong>Carry forward:</strong> Unfinished tasks from previous days can be added to today.</p>
-        <p><strong>Local storage:</strong> Your tasks stay in this browser on this device.</p>
-      </div>
-      <ul id="taskList" class="task-list"></ul>
-    </section>
+    <button id="addTaskFab" class="add-fab" type="button" aria-label="Add a task"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+    <nav class="mobile-nav" aria-label="Main navigation">
+      <button class="nav-button active" type="button" data-view="today">Today</button><button class="nav-button" type="button" data-view="week">Week</button><button class="nav-button" type="button" data-view="blocks">Blocks</button><button class="nav-button" type="button" data-view="data">Data</button>
+    </nav>
+  </div>
 
-    <footer class="page-footer">Your daily plan is saved automatically in this browser.</footer>
-  </main>
+  <dialog id="taskDialog" class="task-dialog" aria-labelledby="taskDialogTitle">
+    <form id="taskForm" method="dialog">
+      <div class="dialog-heading"><div><p id="taskDialogEyebrow" class="eyebrow">QUICK ADD</p><h2 id="taskDialogTitle">New task</h2></div><button class="icon-button" type="button" data-close-dialog="taskDialog" aria-label="Close task dialog">×</button></div>
+      <label class="sr-only" for="taskInput">Task name and quick-add details</label>
+      <textarea id="taskInput" rows="2" placeholder="Review pass slip bug #work ~45m !high @14:00" autocomplete="off"></textarea>
+      <p class="field-hint">Optional shortcuts: #tag, ~estimate, !priority, @time. Set or change these details below. Enter to add; Shift + Enter for a new line.</p>
+      <div id="quickPreview" class="quick-preview" aria-live="polite"></div>
+      <div class="form-group"><span class="field-label">PRIORITY</span><div id="priorityChoices" class="segmented-control"><button type="button" data-priority="normal" class="selected">Normal</button><button type="button" data-priority="high">High</button><button type="button" data-priority="top">Top 3</button></div><p id="topLimitMessage" class="inline-message hidden" role="status">Your Top 3 is full. Choose Normal or High for this task.</p></div>
+          <div class="form-group"><span class="field-label">DAY</span><div id="dayChoices" class="segmented-control"><button type="button" data-day="today" class="selected">Today</button><button type="button" data-day="tomorrow">Tomorrow</button><button type="button" data-day="pick">Pick date</button></div><label class="sr-only" for="pickDateInput">Choose task day</label><input id="pickDateInput" type="date" class="pick-date hidden" /></div>
+      <div class="form-group"><span class="field-label">TAG</span><div id="tagChoices" class="tag-choices"></div><div class="new-tag-row"><label class="sr-only" for="newTagInput">Create a tag</label><input id="newTagInput" type="text" placeholder="New tag" maxlength="24" /><button id="newTagBtn" class="button secondary-button" type="button">+ New</button></div></div>
+      <div class="form-group"><span class="field-label">TIME BLOCK</span><div class="time-fields"><label>Start <input id="blockStartInput" type="time" /></label><label>End <input id="blockEndInput" type="time" /></label><button id="clearBlockBtn" class="text-button" type="button">No block</button></div><label class="estimate-field">Estimate in minutes <input id="estimateInput" type="number" min="5" step="5" inputmode="numeric" placeholder="Optional" /></label></div>
+      <p id="overlapMessage" class="inline-message warning-text hidden" role="status">This block overlaps another one. You can still add it.</p>
+      <div class="dialog-actions"><button class="button secondary-button" type="button" data-close-dialog="taskDialog">Cancel</button><button id="addBtn" class="button primary-button" type="submit">Add task</button></div>
+    </form>
+  </dialog>
 
+  <dialog id="importDialog" class="import-dialog" aria-labelledby="importDialogTitle">
+    <div class="dialog-heading"><div><p class="eyebrow">RESTORE YOUR PLAN</p><h2 id="importDialogTitle">Import backup</h2></div><button class="icon-button" type="button" data-close-dialog="importDialog" aria-label="Close import dialog">×</button></div>
+    <p id="importSummary" class="muted"></p>
+    <p class="warning-copy">Replace replaces current planner data. Merge keeps the latest version of matching records.</p>
+    <div class="dialog-actions"><button id="mergeImportBtn" class="button secondary-button" type="button">Merge</button><button id="replaceImportBtn" class="button primary-button" type="button">Replace data</button></div>
+  </dialog>
+
+  <dialog id="focusDialog" class="focus-dialog" aria-labelledby="focusTaskTitle">
+    <button class="focus-close icon-button" type="button" data-close-dialog="focusDialog" aria-label="Close focus session">×</button>
+    <p class="eyebrow">FOCUS SESSION</p><h2 id="focusTaskTitle"></h2>
+    <div class="timer-ring" aria-live="off"><span id="focusTimer">25:00</span></div>
+    <p id="focusSessionLabel" class="focus-session-label"></p>
+    <div class="focus-actions"><button id="pauseFocusBtn" class="button light-button" type="button">Pause</button><button id="breakFocusBtn" class="button ghost-light-button" type="button">Take a break</button><button id="doneFocusBtn" class="button ghost-light-button" type="button">Mark done</button></div>
+    <p id="focusPhaseLabel" class="focus-phase-label"></p>
+  </dialog>
+
+  <div id="statusMessage" class="toast" role="status" aria-live="polite"></div>
   <script type="module" src="./src/js/main.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/service-worker.js').catch(err => console.error('Service worker registration failed:', err)));
-  </script>
+  <script>if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/service-worker.js').catch(err => console.error('Service worker registration failed:', err)));</script>
 </body>
 </html>

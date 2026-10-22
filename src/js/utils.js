@@ -1,5 +1,4 @@
 import { getTasksByDate, getAllDates } from './storage.js';
-import { showCarryOverBanner } from './ui.js';
 
 export function fmt(time) {
   const d = new Date(time);
@@ -33,7 +32,8 @@ export function checkCarryOver() {
     );
 
   if (unfinished.length > 0) {
-    showCarryOverBanner(unfinished);
+    // Kept for callers from the previous version. The current UI renders carry-over actions inline.
+    globalThis.showCarryOverBanner?.(unfinished);
   }
 }
 

@@ -1,39 +1,43 @@
-import { getTasksByDate } from './storage.js';
+import { getAllTasksSync } from './storage.js';
+import { localDayKey } from './tasks.js';
 
-function dateKey(date) {
-  return date.toISOString().slice(0, 10);
+export function startOfWeek(date = new Date()) {
+  const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const offset = (monday.getDay() + 6) % 7;
+  monday.setDate(monday.getDate() - offset);
+  return monday;
+}
+
+export function addDays(date, count) {
+  const result = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  result.setDate(result.getDate() + count);
+  return result;
 }
 
 export function getWeeklySummary(referenceDate = new Date()) {
-  const today = new Date(`${dateKey(referenceDate)}T00:00:00.000Z`);
-  const mondayOffset = (today.getUTCDay() + 6) % 7;
-  const monday = new Date(today);
-  monday.setUTCDate(monday.getUTCDate() - mondayOffset);
-
+  const monday = startOfWeek(referenceDate);
+  const tasks = getAllTasksSync();
   const days = Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(monday);
-    date.setUTCDate(monday.getUTCDate() + index);
-    const key = dateKey(date);
-    const tasks = getTasksByDate(key);
-    const completed = tasks.filter(task => task.status === 'done').length;
-
+    const date = addDays(monday, index);
+    const key = localDayKey(date);
+    const dayTasks = tasks.filter(task => task.day === key);
     return {
       key,
-      isToday: key === dateKey(today),
-      tasks: tasks.length,
-      completed,
+      isToday: key === localDayKey(new Date()),
+      tasks: dayTasks.length,
+      completed: dayTasks.filter(task => task.status === 'done').length,
+      focusMinutes: dayTasks.reduce((total, task) => total + (task.focusMinutes || 0), 0),
     };
   });
-
   const totalTasks = days.reduce((sum, day) => sum + day.tasks, 0);
   const totalCompleted = days.reduce((sum, day) => sum + day.completed, 0);
-
   return {
-    startDate: days[0].key,
-    endDate: days[6].key,
+    startDate: localDayKey(monday),
+    endDate: localDayKey(addDays(monday, 6)),
     days,
     totalTasks,
     totalCompleted,
+    totalFocusMinutes: days.reduce((total, day) => total + day.focusMinutes, 0),
     completionRate: totalTasks === 0 ? 0 : Math.round((totalCompleted / totalTasks) * 100),
   };
 }

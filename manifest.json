@@ -4,8 +4,8 @@
   "description": "A simple daily task planner",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#4356c7",
-  "theme_color": "#4356c7",
+  "background_color": "#f4f5fb",
+  "theme_color": "#f4f5fb",
   "orientation": "portrait",
   "icons": [
     {
